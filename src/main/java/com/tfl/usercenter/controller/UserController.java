@@ -26,6 +26,7 @@ import static com.tfl.usercenter.contant.UserConstant.USER_LOGIN_STATE;
  */
 @RestController
 @RequestMapping("/user")
+@CrossOrigin
 public class UserController {
 
     @Resource
@@ -125,6 +126,14 @@ public class UserController {
         return ResultUtils.success(list);
     }
 
+    @GetMapping("/recommend")
+    public BaseResponse<List<User>> recommendUsers(HttpServletRequest request) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        List<User> userList = userService.list(queryWrapper);
+        List<User> list = userList.stream().map(user -> userService.getSafetyUser(user)).collect(Collectors.toList());
+        return ResultUtils.success(list);
+    }
+
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
         if (!isAdmin(request)) {
@@ -137,6 +146,11 @@ public class UserController {
         return ResultUtils.success(b);
     }
 
+    @GetMapping("/search/tags")
+    public BaseResponse<List<User>> searchUserByTags(@RequestParam(required = false) List<String> tagNameList) {
+        List<User> userList = userService.searchUserByTagsByMemory(tagNameList);
+        return ResultUtils.success(userList);
+    }
 
     /**
      * 是否为管理员

@@ -2,6 +2,8 @@ package com.tfl.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tfl.usercenter.contant.UserConstant;
 import com.tfl.usercenter.exception.BusinessException;
 import com.tfl.usercenter.service.UserService;
@@ -11,12 +13,17 @@ import com.tfl.usercenter.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 用户服务实现类
@@ -116,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userAccount.length() < 4) {
             return null;
         }
-        if (userPassword.length() < 8) {
+        if (userPassword.length() < 3) {
             return null;
         }
         // 账户不能包含特殊字符
@@ -167,6 +174,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setUserRole(originUser.getUserRole());
         safetyUser.setUserStatus(originUser.getUserStatus());
         safetyUser.setCreateTime(originUser.getCreateTime());
+        safetyUser.setTags(originUser.getTags());
         return safetyUser;
     }
 
@@ -180,6 +188,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 移除登录态
         request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
         return 1;
+    }
+
+    /**
+     * 根据标签搜索用户
+     * @param tagNameList 用户拥有的标签
+     * @return
+     */
+    @Deprecated
+    private List<User> searchUserByTagsBySQL(List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        for (String tag : tagNameList) {
+            queryWrapper = queryWrapper.like("tags",tag);
+        }
+        List<User> users = userMapper.selectList(queryWrapper);
+        return users.stream().map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> searchUserByTagsByMemory(List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 1. 先查询所有用户
+        List<User> userList = userMapper.selectList(new QueryWrapper<>());
+        Gson gson = new Gson();
+        // 2. 在内存中判断每个用户的标签是否包含查询标签
+        return userList.stream().filter(user -> {
+            String tagsStr = user.getTags();
+            if (StringUtils.isBlank(tagsStr)) return false;
+            Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>() {
+            }.getType());
+            for (String tag : tagNameList) {
+                if (!tempTagNameSet.contains(tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }).map(this::getSafetyUser).collect(Collectors.toList());
+
     }
 
 }
