@@ -7,8 +7,8 @@ import com.tfl.usercenter.common.BaseResponse;
 import com.tfl.usercenter.common.ErrorCode;
 import com.tfl.usercenter.common.ResultUtils;
 import com.tfl.usercenter.model.domain.User;
-import com.tfl.usercenter.model.domain.request.UserLoginRequest;
-import com.tfl.usercenter.model.domain.request.UserRegisterRequest;
+import com.tfl.usercenter.model.request.UserLoginRequest;
+import com.tfl.usercenter.model.request.UserRegisterRequest;
 import com.tfl.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 
