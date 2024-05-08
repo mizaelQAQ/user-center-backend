@@ -1,9 +1,11 @@
 package com.tfl.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tfl.usercenter.common.ResultUtils;
 import com.tfl.usercenter.contant.UserConstant;
 import com.tfl.usercenter.exception.BusinessException;
 import com.tfl.usercenter.service.UserService;
@@ -12,18 +14,24 @@ import com.tfl.usercenter.model.domain.User;
 import com.tfl.usercenter.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.transform.Result;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.tfl.usercenter.contant.UserConstant.ADMIN_ROLE;
 
 /**
  * 用户服务实现类
@@ -36,7 +44,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Resource
     private UserMapper userMapper;
-
+    @Resource
+    private RedisTemplate redisTemplate;
 
     /**
      * 盐值，混淆密码
@@ -178,6 +187,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return safetyUser;
     }
 
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        if (request == null) throw new BusinessException(ErrorCode.NOT_LOGIN);
+        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        if (userObj == null) throw new BusinessException(ErrorCode.NOT_LOGIN);
+        return (User) userObj;
+    }
+
     /**
      * 用户注销
      *
@@ -230,6 +247,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return true;
         }).map(this::getSafetyUser).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public int updateUser(User user, User loginUser) {
+        if (user.getUserRole() != ADMIN_ROLE && user.getId() != loginUser.getId()) throw new BusinessException(ErrorCode.NO_AUTH);
+        return userMapper.updateById(user);
+    }
+
+    @Override
+    public Page<User> recommendUsers(long pageNum, long pageSize, HttpServletRequest request) {
+        User loginUser = getLoginUser(request);
+        String redisKey = String.format("dengta:user:recommend:%s", loginUser.getId());
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        //读缓存
+        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
+        if (userPage != null) {
+            return userPage;
+        }
+        //无缓存，查数据库
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        Page<User> userList = page(new Page<>(pageNum,pageSize), queryWrapper);
+        //写缓存
+        try {
+            valueOperations.set(redisKey, userList,30000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.error("redis set key error",e);
+        }
+        return userList;
     }
 
 }

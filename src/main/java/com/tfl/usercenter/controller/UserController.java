@@ -1,6 +1,7 @@
 package com.tfl.usercenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tfl.usercenter.exception.BusinessException;
 import com.tfl.usercenter.common.BaseResponse;
 import com.tfl.usercenter.common.ErrorCode;
@@ -10,6 +11,7 @@ import com.tfl.usercenter.model.domain.request.UserLoginRequest;
 import com.tfl.usercenter.model.domain.request.UserRegisterRequest;
 import com.tfl.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,7 +28,7 @@ import static com.tfl.usercenter.contant.UserConstant.USER_LOGIN_STATE;
  */
 @RestController
 @RequestMapping("/user")
-@CrossOrigin
+@CrossOrigin(origins = {"http://127.0.0.1:5173"}, allowCredentials = "true")
 public class UserController {
 
     @Resource
@@ -127,11 +129,10 @@ public class UserController {
     }
 
     @GetMapping("/recommend")
-    public BaseResponse<List<User>> recommendUsers(HttpServletRequest request) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        List<User> userList = userService.list(queryWrapper);
-        List<User> list = userList.stream().map(user -> userService.getSafetyUser(user)).collect(Collectors.toList());
-        return ResultUtils.success(list);
+    public BaseResponse<Page<User>> recommendUsers(long pageNum, long pageSize, HttpServletRequest request) {
+
+        Page<User> userList = userService.recommendUsers(pageNum,pageSize,request);
+        return ResultUtils.success(userList);
     }
 
     @PostMapping("/delete")
@@ -144,6 +145,15 @@ public class UserController {
         }
         boolean b = userService.removeById(id);
         return ResultUtils.success(b);
+    }
+
+    @PostMapping("/update")
+    public BaseResponse<Integer> updateUser(@RequestBody User user,HttpServletRequest request) {
+        if (user == null) throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) throw new BusinessException(ErrorCode.NOT_LOGIN);
+        int result = userService.updateUser(user, loginUser);
+        return ResultUtils.success(result);
     }
 
     @GetMapping("/search/tags")

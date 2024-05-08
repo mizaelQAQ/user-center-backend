@@ -1,5 +1,6 @@
 package com.tfl.usercenter.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tfl.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -41,6 +42,13 @@ public interface UserService extends IService<User> {
      */
     User getSafetyUser(User originUser);
 
+    /**
+     * 获取登录用户
+     *
+     * @param request
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
 
     /**
      * 用户注销
@@ -63,4 +71,13 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<User> searchUserByTagsByMemory(List<String> tagNameList);
+
+    /**
+     * 更新用户信息
+     * @param user 更新后信息
+     * @param loginUser  当前登录用户
+     */
+    int updateUser(User user, User loginUser);
+
+    Page<User> recommendUsers(long pageNum, long pageSize, HttpServletRequest request);
 }

@@ -1,5 +1,6 @@
 
-
+create database doro
+use doro
 # 用户表
 create table user
 (
@@ -21,7 +22,7 @@ create table user
 )
     comment '用户';
 
-create table doro.tag
+create table tag
 (
     id         bigint auto_increment comment 'id'
         primary key,
@@ -38,6 +39,6 @@ create table doro.tag
     comment '标签';
 
 create index idx_userId
-    on doro.tag (userId);
+    on tag (userId);
 
 alter table user add COLUMN tags varchar(1024) null comment '标签列表';
