@@ -1,15 +1,13 @@
 package com.tfl.usercenter.model.request;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
 import java.util.Date;
-@Data
-public class TeamAddRequest {
 
+@Data
+public class TeamUpdateRequest {
+
+    private Long id;
     /**
      * 队伍名称
      */
@@ -20,20 +18,13 @@ public class TeamAddRequest {
      */
     private String description;
 
-    /**
-     * 最大人数
-     */
-    private Integer maxNum;
 
     /**
      * 过期时间
      */
     private Date expireTime;
 
-    /**
-     * 用户id
-     */
-    private Long userId;
+
 
     /**
      * 0 - 公开，1 - 私有，2 - 加密
@@ -44,6 +35,5 @@ public class TeamAddRequest {
      * 密码
      */
     private String password;
-
 
 }

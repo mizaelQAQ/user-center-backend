@@ -24,6 +24,11 @@ public class TeamQuery extends PageRequest {
     private String name;
 
     /**
+     * 名称 和 描述 关键词
+     */
+    private String searchText;
+
+    /**
      * 描述
      */
     private String description;

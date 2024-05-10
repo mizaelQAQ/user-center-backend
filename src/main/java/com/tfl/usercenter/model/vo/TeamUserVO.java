@@ -1,4 +1,4 @@
-package com.tfl.usercenter.model.request;
+package com.tfl.usercenter.model.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -6,9 +6,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 @Data
-public class TeamAddRequest {
+public class TeamUserVO implements Serializable {
+    /**
+     * id
+     */
+
+    private Long id;
 
     /**
      * 队伍名称
@@ -40,10 +48,18 @@ public class TeamAddRequest {
      */
     private Integer status;
 
+
     /**
-     * 密码
+     * 创建时间
      */
-    private String password;
+    private Date createTime;
 
-
+    /**
+     *
+     */
+    private Date updateTime;
+    /**
+     *创建人用户信息
+     */
+    UserVO createUser;
 }

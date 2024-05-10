@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.tfl.usercenter.contant.UserConstant.ADMIN_ROLE;
+import static com.tfl.usercenter.contant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户服务实现类
@@ -277,5 +278,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return userList;
     }
 
+    /**
+     * 是否为管理员
+     *
+     * @param request
+     * @return
+     */
+    public boolean isAdmin(HttpServletRequest request) {
+        // 仅管理员可查询
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        return user != null && user.getUserRole() == ADMIN_ROLE;
+    }
+    public boolean isAdmin(User user) {
+        // 仅管理员可查询
+        return user != null && user.getUserRole() == ADMIN_ROLE;
+    }
 }
 

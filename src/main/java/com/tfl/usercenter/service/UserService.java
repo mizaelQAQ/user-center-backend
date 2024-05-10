@@ -80,4 +80,7 @@ public interface UserService extends IService<User> {
     int updateUser(User user, User loginUser);
 
     Page<User> recommendUsers(long pageNum, long pageSize, HttpServletRequest request);
+
+    boolean isAdmin(HttpServletRequest request);
+    boolean isAdmin(User user);
 }
