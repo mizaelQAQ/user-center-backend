@@ -5,6 +5,7 @@ import com.tfl.usercenter.model.domain.Team;
 import com.tfl.usercenter.model.domain.User;
 import com.tfl.usercenter.model.dto.TeamQuery;
 import com.tfl.usercenter.model.request.TeamJoinRequest;
+import com.tfl.usercenter.model.request.TeamQuitRequest;
 import com.tfl.usercenter.model.request.TeamUpdateRequest;
 import com.tfl.usercenter.model.vo.TeamUserVO;
 
@@ -43,4 +44,8 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean joinTeam(TeamJoinRequest teamJoinRequest,User loginUser);
+
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    boolean deleteTeam(long id, User loginUser);
 }

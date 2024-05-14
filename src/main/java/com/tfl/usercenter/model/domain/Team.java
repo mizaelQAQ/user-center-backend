@@ -35,6 +35,11 @@ public class Team implements Serializable {
     private Integer maxNum;
 
     /**
+     * 人数
+     */
+    private Integer hasJoinNum;
+
+    /**
      * 过期时间
      */
     private Date expireTime;

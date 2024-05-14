@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class PageRequest implements Serializable {
 
-    protected int pageSize = 10;
+    protected int pageSize = 20;
 
 
     protected int pageNum = 1;

@@ -11,6 +11,7 @@ import com.tfl.usercenter.model.domain.User;
 import com.tfl.usercenter.model.dto.TeamQuery;
 import com.tfl.usercenter.model.request.TeamAddRequest;
 import com.tfl.usercenter.model.request.TeamJoinRequest;
+import com.tfl.usercenter.model.request.TeamQuitRequest;
 import com.tfl.usercenter.model.request.TeamUpdateRequest;
 import com.tfl.usercenter.model.vo.TeamUserVO;
 import com.tfl.usercenter.service.TeamService;
@@ -50,11 +51,12 @@ public class TeamController {
     }
 
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteTeam(@RequestBody long id) {
+    public BaseResponse<Boolean> deleteTeam(@RequestBody long id,HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean save = teamService.removeById(id);
+        User loginUser = userService.getLoginUser(request);
+        boolean save = teamService.deleteTeam(id,loginUser);
         if (!save) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
@@ -115,6 +117,16 @@ public class TeamController {
         }
         User loginUser = userService.getLoginUser(request);
         boolean result = teamService.joinTeam(teamJoinRequest,loginUser);
+        return ResultUtils.success(result);
+    }
+
+    @PostMapping("/quit")
+    public BaseResponse<Boolean> quitTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
+        if (teamQuitRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean result = teamService.quitTeam(teamQuitRequest,loginUser);
         return ResultUtils.success(result);
     }
 }

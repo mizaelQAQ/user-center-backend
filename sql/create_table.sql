@@ -9,6 +9,7 @@ create table team
         primary key,
     name   varchar(256)                   not null comment '队伍名称',
     description varchar(1024)                      null comment '描述',
+    num       int      default 1                not null comment '当前人数',
     maxNum    int      default 1                 not null comment '最大人数',
     expireTime    datetime  null comment '过期时间',
     userId            bigint comment '用户id',
