@@ -3,6 +3,7 @@ package com.tfl.usercenter.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tfl.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tfl.usercenter.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -83,4 +84,6 @@ public interface UserService extends IService<User> {
 
     boolean isAdmin(HttpServletRequest request);
     boolean isAdmin(User user);
+
+    List<User> matchUsers(long num, User loginUser);
 }

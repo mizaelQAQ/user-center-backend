@@ -8,7 +8,7 @@ import java.util.Date;
 public class TeamJoinRequest {
 
 
-    private Long id;
+    private Long teamId;
     /**
      * 密码
      */

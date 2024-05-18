@@ -9,6 +9,7 @@ import com.tfl.usercenter.common.ResultUtils;
 import com.tfl.usercenter.model.domain.User;
 import com.tfl.usercenter.model.request.UserLoginRequest;
 import com.tfl.usercenter.model.request.UserRegisterRequest;
+import com.tfl.usercenter.model.vo.UserVO;
 import com.tfl.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -162,6 +163,14 @@ public class UserController {
         return ResultUtils.success(userList);
     }
 
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 100) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num,loginUser));
+    }
     /**
      * 是否为管理员
      *

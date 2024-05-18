@@ -48,4 +48,6 @@ public interface TeamService extends IService<Team> {
     boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
 
     boolean deleteTeam(long id, User loginUser);
+
+    List<TeamUserVO> listMyTeams(TeamQuery teamQuery, boolean isAdmin);
 }
